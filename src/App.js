@@ -13,8 +13,20 @@ class App extends Component {
       isAuthenticated: false
     };
   }
-
-  handleLogin = (email,password) => {
+  componentDidMount = () => {
+    if (localStorage.token) {
+      this.setState({
+        isAuthenticated: true
+      });
+    }
+  };
+  handleLogout = () => {
+    this.setState({
+      isAuthenticated: false
+    });
+    localStorage.removeItem("token");
+  };
+  handleLogin = (email, password) => {
     axios
       .post(`${process.env.REACT_APP_API_URL}/accounts/login`, {
         email: email,
@@ -39,7 +51,14 @@ class App extends Component {
               <Link to="/">Home</Link> | <Link to="/employees">Employees</Link>{" "}
               |
             </div>
-            <Link to="/login">Login</Link>
+            {this.state.isAuthenticated ? (
+              <div>
+                Welcome
+                <button onClick={this.handleLogout}>Logout</button>
+              </div>
+            ) : (
+              <Link to="/login">Login</Link>
+            )}
           </div>
           <hr />
           <Route exact path="/" component={Home} />
@@ -55,9 +74,11 @@ class App extends Component {
           <Route
             path="/login"
             render={props => (
-              <Login isAuthenticated={this.state.isAuthenticated} 
-              handleLogin={this.handleLogin}
-              {...props} />
+              <Login
+                isAuthenticated={this.state.isAuthenticated}
+                handleLogin={this.handleLogin}
+                {...props}
+              />
             )}
           />
         </div>
